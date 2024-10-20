@@ -1,0 +1,13 @@
+{
+  "Packages": [
+    {
+      "UnityPackageName": "InfinityMirror.unitypackage",
+      "VpmName": "jp.koturn.infinitymirror",
+      "Assets": [
+        {
+          "BasePath": "Assets/koturn/InfinityMirror"
+        }
+      ]
+    }
+  ]
+}

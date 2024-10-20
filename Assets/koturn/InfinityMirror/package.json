@@ -1,0 +1,15 @@
+{
+  "name": "jp.koturn.infinitymirror",
+  "version": "1.0.0",
+  "displayName": "InfinityMirror",
+  "description": "Inifinity Mirror Shader.",
+  "unity": "2019.4",
+  "documentationUrl": "https://github.com/koturn/InfinityMirror",
+  "licensesUrl": "https://github.com/koturn/InfinityMirror/blob/v1.0.0/LICENSE",
+  "license": "MIT",
+  "keywords": ["Shader", "RayMarching"],
+  "url" : "https://github.com/koturn/InfinityMirror/releases/download/v1.0.0/jp.koturn.infinitymirror-1.0.0.zip",
+  "legacyFolders" : {
+    "Assets\\koturn\\InfinityMirror" : "6de4d97cc2657a5499fa0e2647f3d245"
+  }
+}
