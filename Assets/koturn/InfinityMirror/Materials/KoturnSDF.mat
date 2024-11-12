@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: KoturnSDF
   m_Shader: {fileID: 4800000, guid: 5ca29f2adc578bf428559f2a6c4b2887, type: 3}
-  m_ShaderKeywords: _DEPTHOUTPUT_OFF _OVERCLIP_OFF
+  m_ShaderKeywords: _SVDEPTH_OFF _OVERCLIP_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -26,7 +26,7 @@ Material:
     - _ColorCoeff: 0.2
     - _ColorMask: 15
     - _Cull: 2
-    - _DepthOutput: 0
+    - _SvDepth: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EdgeWidth: 0.05

@@ -67,9 +67,9 @@ namespace Koturn.InfinityMirror.Inspectors
         /// </summary>
         private const string PropNameFlipNormal = "_FlipNormal";
         /// <summary>
-        /// Property name of "_DepthOutput".
+        /// Property name of "_SvDepth".
         /// </summary>
-        private const string PropNameDepthOutput = "_DepthOutput";
+        private const string PropNameSvDepth = "_SvDepth";
         /// <summary>
         /// Property name of "_ForwardAdd".
         /// </summary>
@@ -293,7 +293,7 @@ namespace Koturn.InfinityMirror.Inspectors
             using (new EditorGUILayout.VerticalScope(GUI.skin.box))
             {
                 ShaderProperty(me, mps, PropNameFlipNormal, false);
-                ShaderProperty(me, mps, PropNameDepthOutput, false);
+                ShaderProperty(me, mps, PropNameSvDepth, false);
                 ShaderProperty(me, mps, PropNameForwardAdd, false);
 
                 var mpCull = FindAndDrawProperty(me, mps, PropNameCull, false);

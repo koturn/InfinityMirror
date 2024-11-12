@@ -21,10 +21,10 @@ struct fout_infmirror
 {
     //! Output color of the pixel.
     half4 color : SV_Target;
-#if defined(UNITY_PASS_FORWARDBASE) && !defined(_DEPTHOUTPUT_OFF)
+#if defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
     //! Depth of the pixel.
     float depth : SV_Depth;
-#endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_DEPTHOUTPUT_OFF)
+#endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
 };
 
 /*!
@@ -41,10 +41,10 @@ struct gbuffer_infmirror
     half4 normal : SV_Target2;
     //! Emission. (rgb: emission, a: unused)
     half4 emission : SV_Target3;
-#if !defined(_DEPTHOUTPUT_OFF)
+#if !defined(_SVDEPTH_OFF)
     //! Depth of the pixel.
     float depth : SV_Depth;
-#endif  // !defined(_DEPTHOUTPUT_OFF)
+#endif  // !defined(_SVDEPTH_OFF)
 };
 
 #if defined(SHADER_API_GLCORE) || defined(SHADER_API_GLES) || defined(SHADER_API_D3D9)
@@ -187,16 +187,16 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
 
 #    if defined(UNITY_PASS_DEFERRED)
     gb.emission = color;
-#        if !defined(_DEPTHOUTPUT_OFF)
+#        if !defined(_SVDEPTH_OFF)
     gb.depth = getDepth(clipPos);
-#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_DEPTHOUTPUT_OFF)
+#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
     return gb;
 #    else
     fout_infmirror fo;
     fo.color = color;
-#        if defined(UNITY_PASS_FORWARDBASE) && !defined(_DEPTHOUTPUT_OFF)
+#        if defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
     fo.depth = getDepth(clipPos);
-#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_DEPTHOUTPUT_OFF)
+#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
     return fo;
 #    endif  // defined(UNITY_PASS_DEFERRED)
 }
