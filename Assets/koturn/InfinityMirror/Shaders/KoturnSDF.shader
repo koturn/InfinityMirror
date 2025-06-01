@@ -63,7 +63,7 @@ Shader "koturn/InfinityMirror/KoturnSDF"
         _FlipNormal ("Flip Backface Normal", Int) = 0
 
         [KeywordEnum(Off, On, LessEqual, GreaterEqual)]
-        _SVDepth ("Depth ouput", Int) = 1
+        _SvDepth ("Depth ouput", Int) = 1
 
         [ToggleOff(_FORWARDADD_OFF)]
         _ForwardAdd ("Enable ForwardAdd Pass", Int) = 1
