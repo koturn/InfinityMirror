@@ -79,14 +79,16 @@ typedef bool face_t;
 #endif  // defined(SHADER_API_GLCORE) || defined(SHADER_API_GLES) || defined(SHADER_API_D3D9)
 
 
+UNITY_INSTANCING_BUFFER_START(InfinityMirrorProps)
 //! Tint color for Main texture.
-uniform float4 _Color;
+UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
 //! Hue Shift Speed.
-uniform float _HueShiftSpeed;
+UNITY_DEFINE_INSTANCED_PROP(float, _HueShiftSpeed)
 //! Step depth.
-uniform float _StepDepth;
+UNITY_DEFINE_INSTANCED_PROP(float, _StepDepth)
 //! Color coefficient.
-uniform float _ColorCoeff;
+UNITY_DEFINE_INSTANCED_PROP(float, _ColorCoeff)
+UNITY_INSTANCING_BUFFER_END(InfinityMirrorProps)
 
 
 float getDepth(float4 clipPos);
@@ -154,7 +156,7 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
 
     const float3 rayDir = normalize(fi.rayDirVec);
     const float3 worldRayDir = mul(invWorldToTangent, rayDir);
-    const float stepDepth = _StepDepth * length(mul((float3x3)unity_WorldToObject, worldRayDir));
+    const float stepDepth = UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _StepDepth) * length(mul((float3x3)unity_WorldToObject, worldRayDir));
 
     int rayStep = 0;
     const bool isHit = RAYMARCH(rayDir, stepDepth, fi.uv, /* out */ rayStep);
@@ -166,11 +168,12 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
     }
 
 #    if defined(_HUESHIFT_ON)
-    half4 color = half4(rgbAddHue(_Color.rgb, _Time * _HueShiftSpeed), _Color.a);
+    half4 color = UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _Color);
+    color.rgb = rgbAddHue(_Color.rgb, _Time * UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _HueShiftSpeed));
 #    else
-    half4 color = _Color;
+    half4 color = UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _Color);
 #    endif  // defined(_HUESHIFT_ON)
-    color *= _ColorCoeff * rayStep;
+    color *= UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _ColorCoeff) * rayStep;
 
     // Since worldToTanget matrix is an orthonormal matrix, the transposed matrix is the inverse matrix.
     const float3 finalWorldPos = fi.worldPos + mul(invWorldToTangent, worldRayDir) * stepDepth * rayStep;

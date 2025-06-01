@@ -139,14 +139,17 @@ Shader "koturn/InfinityMirror/Texture"
 
         CGINCLUDE
         #pragma target 5.0
+        #pragma multi_compile_instancing
 
         #define RAYMARCH rayMarch
         bool rayMarch(float3 rayDir, float stepDepth, float2 uv, out int rayStep);
         #include "InfinityMirrorCore.cginc"
 
 
+        UNITY_INSTANCING_BUFFER_START(Props)
         //! Maximum loop count
         uniform int _MaxLoop;
+        UNITY_INSTANCING_BUFFER_END(Props)
 
 
         /*!
@@ -164,8 +167,10 @@ Shader "koturn/InfinityMirror/Texture"
 
             half4 tex = UNITY_SAMPLE_TEX2D(_MainTex, uv);
 
+            const int maxLoop = UNITY_ACCESS_INSTANCED_PROP(Props, _MaxLoop);
+
             [unroll(16)]
-            for (rayStep = 0; rayStep < _MaxLoop; rayStep++) {
+            for (rayStep = 0; rayStep < maxLoop; rayStep++) {
                 UNITY_FLATTEN
                 if (tex.a > 0.5) {
                     isHit = true;

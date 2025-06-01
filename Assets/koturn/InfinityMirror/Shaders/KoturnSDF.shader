@@ -145,6 +145,7 @@ Shader "koturn/InfinityMirror/KoturnSDF"
 
         CGINCLUDE
         #pragma target 5.0
+        #pragma multi_compile_instancing
 
         #define NO_TEXTURE
         #define RAYMARCH rayMarch
@@ -152,14 +153,16 @@ Shader "koturn/InfinityMirror/KoturnSDF"
         #include "InfinityMirrorCore.cginc"
 
 
+        UNITY_INSTANCING_BUFFER_START(Props)
         //! Maximum loop count
-        uniform int _MaxLoop;
+        UNITY_DEFINE_INSTANCED_PROP(int, _MaxLoop)
         //! Edge width.
-        uniform float _EdgeWidth;
+        UNITY_DEFINE_INSTANCED_PROP(float, _EdgeWidth)
         //! Coefficient vector A.
-        uniform float3 _CoeffsA;
+        UNITY_DEFINE_INSTANCED_PROP(float3, _CoeffsA)
         //! Coefficient vector B.
-        uniform float3 _CoeffsB;
+        UNITY_DEFINE_INSTANCED_PROP(float3, _CoeffsB)
+        UNITY_INSTANCING_BUFFER_END(Props)
 
 
         bool checkHit(float2 p);
@@ -178,7 +181,9 @@ Shader "koturn/InfinityMirror/KoturnSDF"
         {
             rayStep = 0;
 
-            for (rayStep = 0; rayStep < _MaxLoop; rayStep++) {
+            const int maxLoop = UNITY_ACCESS_INSTANCED_PROP(Props, _MaxLoop);
+
+            for (rayStep = 0; rayStep < maxLoop; rayStep++) {
                 UNITY_FLATTEN
                 if (checkHit(uv)) {
                     return true;
@@ -197,7 +202,8 @@ Shader "koturn/InfinityMirror/KoturnSDF"
          */
         bool checkHit(float2 p)
         {
-            if (any(abs(p * 2.0 - 1.0) > (1.0 - _EdgeWidth.xx * 2.0))) {
+            const float edgeWidth = UNITY_ACCESS_INSTANCED_PROP(Props, _EdgeWidth);
+            if (any(abs(p * 2.0 - 1.0) > (1.0 - edgeWidth.xx * 2.0))) {
                 return true;
             }
             return map(p) < 0.0;
@@ -214,10 +220,12 @@ Shader "koturn/InfinityMirror/KoturnSDF"
             p = p * 10.0 - 5.0;
             const float2 pp = p * p;
             const float sumXY = p.x + p.y;
-            const float a = abs(pp.x + pp.y - _CoeffsA.x * sumXY - _CoeffsA.y) + sumXY - _CoeffsA.z;
+            const float3 coeffsA = UNITY_ACCESS_INSTANCED_PROP(Props, _CoeffsA);
+            const float a = abs(pp.x + pp.y - coeffsA.x * sumXY - coeffsA.y) + sumXY - coeffsA.z;
 
             const float2 absP = abs(p);
-            const float b = max(absP.x, absP.y - _CoeffsB.x) + (_CoeffsB.y * abs(absP.x - absP.y) - _CoeffsB.z);
+            const float3 coeffsB = UNITY_ACCESS_INSTANCED_PROP(Props, _CoeffsB);
+            const float b = max(absP.x, absP.y - coeffsB.x) + (coeffsB.y * abs(absP.x - absP.y) - coeffsB.z);
 
             return a / b;
         }
