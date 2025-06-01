@@ -19,6 +19,22 @@
 #    undef _FLIPNORMAL_ON
 #endif  // defined(SHADER_API_D3D11_9X)
 
+#if defined(_SVDEPTH_GREATEREQUAL)
+#    if SHADER_TARGET >= 45
+#        define DEPTH_SEMANTICS SV_DepthGreaterEqual
+#    else
+#        define DEPTH_SEMANTICS SV_Depth
+#    endif  // SHADER_TARGET >= 45
+#elif defined(_SVDEPTH_LESSEQUAL)
+#    if SHADER_TARGET >= 45
+#        define DEPTH_SEMANTICS SV_DepthLessEqual
+#    else
+#        define DEPTH_SEMANTICS SV_Depth
+#    endif  // SHADER_TARGET >= 45
+#else
+#    define DEPTH_SEMANTICS SV_Depth
+#endif  // defined(_SVDEPTH_ON)
+
 
 /*!
  * @brief Output of fragment shader.
@@ -28,10 +44,10 @@ struct fout_infmirror
 {
     //! Output color of the pixel.
     half4 color : SV_Target;
-#if defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
+#if (defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)) && (!defined(SHADOWS_CUBE) || defined(SHADOWS_CUBE_IN_DEPTH_TEX))
     //! Depth of the pixel.
-    float depth : SV_Depth;
-#endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
+    float depth : DEPTH_SEMANTICS;
+#endif  // (defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)) && (!defined(SHADOWS_CUBE) || defined(SHADOWS_CUBE_IN_DEPTH_TEX))
 };
 
 /*!
@@ -48,10 +64,10 @@ struct gbuffer_infmirror
     half4 normal : SV_Target2;
     //! Emission. (rgb: emission, a: unused)
     half4 emission : SV_Target3;
-#if !defined(_SVDEPTH_OFF)
+#if defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)
     //! Depth of the pixel.
-    float depth : SV_Depth;
-#endif  // !defined(_SVDEPTH_OFF)
+    float depth : DEPTH_SEMANTICS;
+#endif  // defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)
 };
 
 #if defined(SHADER_API_GLCORE) || defined(SHADER_API_GLES) || defined(SHADER_API_D3D9)
@@ -194,16 +210,16 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
 
 #    if defined(UNITY_PASS_DEFERRED)
     gb.emission = color;
-#        if !defined(_SVDEPTH_OFF)
+#        if defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)
     gb.depth = getDepth(clipPos);
-#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
+#        endif  // defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)
     return gb;
 #    else
     fout_infmirror fo;
     fo.color = color;
-#        if defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
+#        if (defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)) && (!defined(SHADOWS_CUBE) || defined(SHADOWS_CUBE_IN_DEPTH_TEX))
     fo.depth = getDepth(clipPos);
-#        endif  // defined(UNITY_PASS_FORWARDBASE) && !defined(_SVDEPTH_OFF)
+#        endif  // (defined(_SVDEPTH_ON) || defined(_SVDEPTH_LESSEQUAL) || defined(_SVDEPTH_GREATEREQUAL)) && (!defined(SHADOWS_CUBE) || defined(SHADOWS_CUBE_IN_DEPTH_TEX))
     return fo;
 #    endif  // defined(UNITY_PASS_DEFERRED)
 }

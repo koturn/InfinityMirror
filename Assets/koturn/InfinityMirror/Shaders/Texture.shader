@@ -56,8 +56,8 @@ Shader "koturn/InfinityMirror/Texture"
         [Toggle(_FLIPNORMAL_ON)]
         _FlipNormal ("Flip Backface Normal", Int) = 0
 
-        [ToggleOff(_SVDEPTH_OFF)]
-        _SvDepth ("Enable depth ouput", Int) = 0
+        [KeywordEnum(Off, On, LessEqual, GreaterEqual)]
+        _SVDepth ("Depth ouput", Int) = 1
 
         [ToggleOff(_FORWARDADD_OFF)]
         _ForwardAdd ("Enable ForwardAdd Pass", Int) = 1
@@ -138,7 +138,7 @@ Shader "koturn/InfinityMirror/Texture"
         }
 
         CGINCLUDE
-        #pragma target 3.0
+        #pragma target 5.0
 
         #define RAYMARCH rayMarch
         bool rayMarch(float3 rayDir, float stepDepth, float2 uv, out int rayStep);
@@ -201,7 +201,7 @@ Shader "koturn/InfinityMirror/Texture"
             #pragma multi_compile_fwdbase
             #pragma multi_compile_fog
             #pragma shader_feature_local_fragment _ _HUESHIFT_ON
-            #pragma shader_feature_local_fragment _ _SVDEPTH_OFF
+            #pragma shader_feature_local_fragment _SVDEPTH_OFF _SVDEPTH_ON _SVDEPTH_LESSEQUAL _SVDEPTH_GREATEREQUAL
             #pragma shader_feature_local_fragment _ _OVERCLIP_OFF
             #pragma shader_feature_local_fragment _LIGHTING_UNITY_LAMBERT _LIGHTING_UNITY_BLINN_PHONG _LIGHTING_UNITY_STANDARD _LIGHTING_UNITY_STANDARD_SPECULAR _LIGHTING_UNLIT
             #pragma shader_feature_local_fragment _ _FLIPNORMAL_ON
@@ -232,7 +232,7 @@ Shader "koturn/InfinityMirror/Texture"
             #pragma multi_compile_fog
             #pragma shader_feature_local _ _FORWARDADD_OFF
             #pragma shader_feature_local_fragment _ _HUESHIFT_ON
-            #pragma shader_feature_local_fragment _ _SVDEPTH_OFF
+            #pragma shader_feature_local_fragment _SVDEPTH_OFF _SVDEPTH_ON _SVDEPTH_LESSEQUAL _SVDEPTH_GREATEREQUAL
             #pragma shader_feature_local_fragment _ _OVERCLIP_OFF
             #pragma shader_feature_local_fragment _LIGHTING_UNITY_LAMBERT _LIGHTING_UNITY_BLINN_PHONG _LIGHTING_UNITY_STANDARD _LIGHTING_UNITY_STANDARD_SPECULAR _LIGHTING_UNLIT
             #pragma shader_feature_local_fragment _ _FLIPNORMAL_ON
@@ -260,7 +260,7 @@ Shader "koturn/InfinityMirror/Texture"
             #pragma multi_compile_prepassfinal
             #pragma multi_compile_fog
             #pragma shader_feature_local_fragment _ _HUESHIFT_ON
-            #pragma shader_feature_local_fragment _ _SVDEPTH_OFF
+            #pragma shader_feature_local_fragment _SVDEPTH_OFF _SVDEPTH_ON _SVDEPTH_LESSEQUAL _SVDEPTH_GREATEREQUAL
             #pragma shader_feature_local_fragment _ _OVERCLIP_OFF
             #pragma shader_feature_local_fragment _LIGHTING_UNITY_LAMBERT _LIGHTING_UNITY_BLINN_PHONG _LIGHTING_UNITY_STANDARD _LIGHTING_UNITY_STANDARD_SPECULAR _LIGHTING_UNLIT
             #pragma shader_feature_local_fragment _ _FLIPNORMAL_ON
