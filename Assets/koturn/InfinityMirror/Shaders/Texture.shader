@@ -39,6 +39,15 @@ Shader "koturn/InfinityMirror/Texture"
         _SpecColor ("Specular Color", Color) = (0.5, 0.5, 0.5, 1.0)
         _SpecPower ("Specular Power", Range(0.0, 128.0)) = 16.0
 
+        [KeywordEnum(Off, On, Additive Only)]
+        _VRCLightVolumes ("VRC Light Volumes", Int) = 1
+
+        [KeywordEnum(Off, On, Dominant Dir)]
+        _VRCLightVolumesSpecular ("VRC Light Volumes Specular", Int) = 0
+
+        [Toggle(_LTCGI_ON)]
+        _LTCGI ("LTCGI", Int) = 0
+
 
         // ------------------------------------------------------------
         [Header(Rendering Parameters)]
@@ -106,8 +115,9 @@ Shader "koturn/InfinityMirror/Texture"
             "Queue" = "Geometry"
             // "DisableBatching" = "True"
             // "IgnoreProjector" = "True"
-            "VRCFallback" = "StandardCutout"
             "PreviewType" = "Plane"
+            "VRCFallback" = "StandardCutout"
+            "LTCGI" = "_LTCGI"
         }
 
         ZTest [_ZTest]
@@ -195,6 +205,9 @@ Shader "koturn/InfinityMirror/Texture"
             #pragma shader_feature_local_fragment _ _OVERCLIP_OFF
             #pragma shader_feature_local_fragment _LIGHTING_UNITY_LAMBERT _LIGHTING_UNITY_BLINN_PHONG _LIGHTING_UNITY_STANDARD _LIGHTING_UNITY_STANDARD_SPECULAR _LIGHTING_UNLIT
             #pragma shader_feature_local_fragment _ _FLIPNORMAL_ON
+            #pragma shader_feature_local_fragment _VRCLIGHTVOLUMES_OFF _VRCLIGHTVOLUMES_ON _VRCLIGHTVOLUMES_ADDITIVE_ONLY
+            #pragma shader_feature_local_fragment _VRCLIGHTVOLUMESSPECULAR_OFF _VRCLIGHTVOLUMESSPECULAR_ON _VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR
+            #pragma shader_feature_local_fragment _ _LTCGI_ON
             ENDCG
         }
 
