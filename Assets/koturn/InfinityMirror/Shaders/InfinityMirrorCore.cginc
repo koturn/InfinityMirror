@@ -6,13 +6,6 @@
 #include "include/AltUnityStandardUtils.cginc"
 #include "include/VertCommon.cginc"
 #include "include/LightingUtils.cginc"
-#if defined(_LTCGI_ON)
-#    define LTCGI_AVATAR_MODE
-#    if defined(_LIGHTING_UNITY_LAMBERT)
-#        define LTCGI_SPECULAR_OFF
-#    endif  // defined(_LIGHTING_UNITY_LAMBERT)
-#    include "/Packages/at.pimaker.ltcgi/Shaders/LTCGI.cginc"
-#endif  // defined(_LTCGI_ON)
 
 
 #if defined(SHADER_API_D3D11_9X)
