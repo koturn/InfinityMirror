@@ -72,13 +72,13 @@ half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, fl
 // #    include "LightVolumes.cginc"
 #    include "LightVolumes.cginc"
 #endif  // defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
-#if defined(_LTCGI_ON)
+#if defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 #    define LTCGI_AVATAR_MODE
 #    if defined(_LIGHTING_UNITY_LAMBERT)
 #        define LTCGI_SPECULAR_OFF
 #    endif  // defined(_LIGHTING_UNITY_LAMBERT)
-#    include "/Packages/at.pimaker.ltcgi/Shaders/LTCGI.cginc"
-#endif  // defined(_LTCGI_ON)
+#    include "Packages/at.pimaker.ltcgi/Shaders/LTCGI.cginc"
+#endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
 half3 calcAmbient(float3 worldPos, float3 worldNormal);
 UnityGI getGI(float3 worldPos, half atten);
@@ -271,14 +271,13 @@ half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal,
     LightingLambert_GI(so, giInput, gi);
 #endif  // defined(UNITY_PASS_FORWARDBASE)
 
-#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
-#    if defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
+#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
     if (_UdonLightVolumeEnabled && _UdonLightVolumeCount != 0) {
         gi.indirect.diffuse = half3(0.0, 0.0, 0.0);
         so.Emission += calcLightVolumeAmbientAndSpecular(color.rgb, worldPos, worldNormal, worldViewDir);
     }
-#    endif  // defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
-#    if defined(_LTCGI_ON)
+#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
+#if defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
     float3 ltcgiDiffuse = float3(0.0, 0.0, 0.0);
     float3 ltcgiSpecular = float3(0.0, 0.0, 0.0);  // unused
     LTCGI_Contribution(
@@ -290,8 +289,7 @@ half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal,
        /* inout */ ltcgiDiffuse,
        /* inout */ ltcgiSpecular);
     so.Emission += color.rgb * ltcgiDiffuse;
-#    endif  // defined(_LTCGI_ON)
-#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
+#endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
     half4 outColor = LightingLambert(so, gi);
 #if defined(UNITY_PASS_FORWARDBASE)
@@ -411,14 +409,13 @@ half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNorm
     LightingBlinnPhong_GI(so, giInput, gi);
 #endif  // defined(UNITY_PASS_FORWARDBASE)
 
-#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
-#    if defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
+#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
     if (_UdonLightVolumeEnabled && _UdonLightVolumeCount != 0) {
         gi.indirect.diffuse = half3(0.0, 0.0, 0.0);
         so.Emission += calcLightVolumeAmbientAndSpecular(color.rgb, worldPos, worldNormal, worldViewDir);
     }
-#    endif  // defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
-#    if defined(_LTCGI_ON)
+#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
+#if defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
     float3 ltcgiDiffuse = float3(0.0, 0.0, 0.0);
     float3 ltcgiSpecular = float3(0.0, 0.0, 0.0);
     LTCGI_Contribution(
@@ -430,8 +427,7 @@ half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNorm
        /* inout */ ltcgiDiffuse,
        /* inout */ ltcgiSpecular);
     so.Emission += color.rgb * ltcgiDiffuse + ltcgiSpecular;
-#    endif  // defined(_LTCGI_ON)
-#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
+#endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
     half4 outColor = LightingBlinnPhong(so, worldViewDir, gi);
 #if defined(UNITY_PASS_FORWARDBASE)
@@ -554,14 +550,13 @@ half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal
     LightingStandard_GI(so, giInput, gi);
 #endif  // defined(UNITY_PASS_FORWARDBASE)
 
-#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
-#    if defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
+#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
     if (_UdonLightVolumeEnabled && _UdonLightVolumeCount != 0) {
         gi.indirect.diffuse = half3(0.0, 0.0, 0.0);
         so.Emission += calcLightVolumeAmbientAndSpecular(color.rgb, worldPos, worldNormal, worldViewDir);
     }
-#    endif  // defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
-#    if defined(_LTCGI_ON)
+#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
+#if defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
     float3 ltcgiDiffuse = float3(0.0, 0.0, 0.0);
     float3 ltcgiSpecular = float3(0.0, 0.0, 0.0);
     LTCGI_Contribution(
@@ -573,8 +568,7 @@ half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal
        /* inout */ ltcgiDiffuse,
        /* inout */ ltcgiSpecular);
     so.Emission += color.rgb * ltcgiDiffuse + ltcgiSpecular;
-#    endif  // defined(_LTCGI_ON)
-#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
+#endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
     half4 outColor = LightingStandard(so, worldViewDir, gi);
 #if defined(UNITY_PASS_FORWARDBASE)
@@ -696,14 +690,13 @@ half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 wor
     LightingStandardSpecular_GI(so, giInput, gi);
 #endif  // defined(UNITY_PASS_FORWARDBASE)
 
-#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
-#    if defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
+#if UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
     if (_UdonLightVolumeEnabled && _UdonLightVolumeCount != 0) {
         gi.indirect.diffuse = half3(0.0, 0.0, 0.0);
         so.Emission += calcLightVolumeAmbientAndSpecular(color.rgb, worldPos, worldNormal, worldViewDir);
     }
-#    endif  // defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR)
-#    if defined(_LTCGI_ON)
+#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON) && (defined(_VRCLIGHTVOLUMES_ON) || defined(_VRCLIGHTVOLUMES_ADDITIVE_ONLY) || defined(_VRCLIGHTVOLUMESSPECULAR_ON) || defined(_VRCLIGHTVOLUMESSPECULAR_DOMINANT_DIR))
+#if defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
     float3 ltcgiDiffuse = float3(0.0, 0.0, 0.0);
     float3 ltcgiSpecular = float3(0.0, 0.0, 0.0);
     LTCGI_Contribution(
@@ -715,8 +708,7 @@ half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 wor
        /* inout */ ltcgiDiffuse,
        /* inout */ ltcgiSpecular);
     so.Emission += color.rgb * ltcgiDiffuse + ltcgiSpecular;
-#    endif  // defined(_LTCGI_ON)
-#endif  // UNITY_SHOULD_SAMPLE_SH && !defined(LIGHTMAP_ON)
+#endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
     half4 outColor = LightingStandardSpecular(so, worldViewDir, gi);
 #if defined(UNITY_PASS_FORWARDBASE)
