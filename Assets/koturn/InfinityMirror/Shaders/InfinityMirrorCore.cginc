@@ -145,14 +145,16 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
     fi.normal = isFacing(facing) ? fi.normal : -fi.normal;
 #    endif  // defined(_FLIPNORMAL_ON)
 
-    const float3x3 invWorldToTangent = transpose(float3x3(fi.tangent, fi.binormal, fi.normal));
-
     const float3 rayDir = normalize(fi.rayDirVec);
-    const float3 worldRayDir = mul(invWorldToTangent, rayDir);
-    const float stepDepth = UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _StepDepth) * length(mul((float3x3)unity_WorldToObject, worldRayDir));
+    const float3 tangentRayDir = float3(
+        dot(fi.tangent, rayDir),
+        dot(fi.binormal, rayDir),
+        dot(fi.normal, rayDir));
+    const float3 objectRayDir = mul((float3x3)unity_WorldToObject, rayDir);
+    const float stepDepth = UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _StepDepth) * rsqrt(dot(objectRayDir, objectRayDir));
 
     int rayStep = 0;
-    const bool isHit = RAYMARCH(rayDir, stepDepth, fi.uv, /* out */ rayStep);
+    const bool isHit = RAYMARCH(tangentRayDir, stepDepth, fi.uv, /* out */ rayStep);
 
     if (!isHit) {
 #    if !defined(_OVERCLIP_OFF)
@@ -168,8 +170,7 @@ fout_infmirror fragInfinityMirror(v2f_infmirror fi)
 #    endif  // defined(_HUESHIFT_ON)
     color *= UNITY_ACCESS_INSTANCED_PROP(InfinityMirrorProps, _ColorCoeff) * rayStep;
 
-    // Since worldToTanget matrix is an orthonormal matrix, the transposed matrix is the inverse matrix.
-    const float3 finalWorldPos = fi.worldPos + mul(invWorldToTangent, worldRayDir) * stepDepth * rayStep;
+    const float3 finalWorldPos = fi.worldPos + rayDir * stepDepth * rayStep;
 
 #    if defined(UNITY_PASS_DEFERRED)
     gbuffer_infmirror gb;

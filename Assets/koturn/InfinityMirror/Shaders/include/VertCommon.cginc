@@ -62,12 +62,12 @@ struct v2f_infmirror
     float2 uv : TEXCOORD0;
     //! World space position.
     float3 worldPos: TEXCOORD1;
-    //! World space normal.
-    float3 normal : TEXCOORD2;
     //! World space tangent.
-    float3 tangent : TEXCOORD3;
+    float3 tangent : TEXCOORD2;
     //! World space normal.
-    float3 binormal : TEXCOORD4;
+    float3 binormal : TEXCOORD3;
+    //! World space normal.
+    float3 normal : TEXCOORD4;
     //! Unnormalized world space ray direction.
     float3 rayDirVec : TEXCOORD5;
 #if defined(LIGHTMAP_ON)
@@ -130,19 +130,11 @@ v2f_infmirror vertInfinityMirror(appdata_infmirror v)
     UNITY_TRANSFER_INSTANCE_ID(v, o);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-    // World
-    const float3 vertPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-    const float3 rayDirVec = vertPos - _WorldSpaceCameraPos;
-    const float3 normal = UnityObjectToWorldNormal(v.normal);
-    const float3 tangent = mul(unity_ObjectToWorld, v.tangent.xyz);
-    const float3 binormal = cross(normal, tangent) * v.tangent.w * unity_WorldTransformParams.w;
-    o.rayDirVec = float3(
-        dot(tangent, rayDirVec),
-        dot(binormal, rayDirVec),
-        dot(normal, rayDirVec));
-    o.normal = normal;
-    o.tangent = tangent;
-    o.binormal = binormal;
+    o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+    o.normal = UnityObjectToWorldNormal(v.normal);
+    o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
+    o.binormal = cross(o.normal, o.tangent) * v.tangent.w * unity_WorldTransformParams.w;
+    o.rayDirVec = o.worldPos - _WorldSpaceCameraPos;
 
     o.pos = UnityObjectToClipPos(v.vertex);
     #if defined(NO_TEXTURE)
@@ -150,9 +142,7 @@ v2f_infmirror vertInfinityMirror(appdata_infmirror v)
     #else
     o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
     #endif
-    o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 
-    half4 ambientOrLightmapUV = half4(0.0, 0.0, 0.0, 0.0);
     // Static lightmaps
     #if defined(LIGHTMAP_ON)
     o.lmap.xy = v.texcoord1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
