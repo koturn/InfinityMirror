@@ -172,9 +172,9 @@ v2f_infmirror vertInfinityMirror(appdata_infmirror v)
         unity_LightColor[3].rgb,
         unity_4LightAtten0,
         o.worldPos,
-        v.normal);
+        o.normal);
     #    endif  // defined(VERTEXLIGHT_ON)
-    o.ambient.rgb = ShadeSHPerVertex(v.normal, o.ambient.rgb);
+    o.ambient.rgb = ShadeSHPerVertex(o.normal, o.ambient.rgb);
     #endif  // defined(LIGHTMAP_ON)
 
     // UNITY_TRANSFER_LIGHTING(o, v.uv2);
