@@ -38,32 +38,22 @@
 #endif  // !defined(LIGHTINGUTILS_METALLIC)
 
 
-half4 calcLightingUnity(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap);
 half4 calcLightingUnity(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient);
-half4 calcLightingUnityDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal);
 half4 calcLightingUnityDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient, out half4 diffuse, out half4 specular, out half4 normal);
 
 #if !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING)
 #include "Lighting.cginc"
-half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap);
 half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient);
-half4 calcLightingUnityLambertDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal);
 half4 calcLightingUnityLambertDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient, out half4 diffuse, out half4 specular, out half4 normal);
-half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap);
 half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient);
-half4 calcLightingUnityBlinnPhongDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal);
 half4 calcLightingUnityBlinnPhongDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient, out half4 diffuse, out half4 specular, out half4 normal);
 #endif  // !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING)
 
 #if !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING)
 #include "UnityPBSLighting.cginc"
-half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap);
 half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient);
-half4 calcLightingUnityStandardDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal);
 half4 calcLightingUnityStandardDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient, out half4 diffuse, out half4 specular, out half4 normal);
-half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap);
 half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient);
-half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal);
 half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, half3 ambient, out half4 diffuse, out half4 specular, out half4 normal);
 #endif  // !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING)
 
@@ -80,7 +70,6 @@ half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, fl
 #    include "Packages/at.pimaker.ltcgi/Shaders/LTCGI.cginc"
 #endif  // defined(UNITY_PASS_FORWARDBASE) && defined(_LTCGI_ON)
 
-half3 calcAmbient(float3 worldPos, float3 worldNormal);
 UnityGI getGI(float3 worldPos, half atten);
 UnityGIInput getGIInput(UnityLight light, float3 worldPos, float3 worldNormal, float3 worldViewDir, half atten, float4 lmap, half3 ambient);
 half3 calcLightVolumeAmbientAndSpecular(half3 albedo, float3 worldPos, float3 worldNormal, float3 worldViewDir, half glossiness, half metallic, half occlusion);
@@ -113,31 +102,6 @@ LIGHTINGUTILS_INSTANCING_BUFFER_END
  * @param [in] worldNormal  Normal in world space.
  * @param [in] atten  Light attenuation.
  * @param [in] lmap  Light map parameters.
- * @return Color with lighting applied.
- */
-half4 calcLightingUnity(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap)
-{
-#if !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING) && defined(_LIGHTING_UNITY_LAMBERT)
-    return calcLightingUnityLambert(color, worldPos, worldNormal, atten, lmap);
-#elif !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING) && defined(_LIGHTING_UNITY_BLINN_PHONG)
-    return calcLightingUnityBlinnPhong(color, worldPos, worldNormal, atten, lmap);
-#elif !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING) && defined(_LIGHTING_UNITY_STANDARD)
-    return calcLightingUnityStandard(color, worldPos, worldNormal, atten, lmap);
-#elif !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING) && defined(_LIGHTING_UNITY_STANDARD_SPECULAR)
-    return calcLightingUnityStandardSpecular(color, worldPos, worldNormal, atten, lmap);
-#else  // Assume _LIGHTING_UNLIT
-    return color;
-#endif  // defined(_LIGHTING_LAMBERT)
-}
-
-
-/*!
- * Calculate lighting using functions provided from Unity Library.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
  * @param [in] ambient  Ambient light.
  * @return Color with lighting applied.
  */
@@ -153,37 +117,6 @@ half4 calcLightingUnity(half4 color, float3 worldPos, float3 worldNormal, half a
     return calcLightingUnityStandardSpecular(color, worldPos, worldNormal, atten, lmap, ambient);
 #else  // Assume _LIGHTING_UNLIT
     return color;
-#endif  // defined(_LIGHTING_LAMBERT)
-}
-
-
-/*!
- * Calculate lighting using functions provided from Unity Library.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
- * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
- * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
- * @param [out] normal  Encoded normal. (rgb: normal, a: unused)
- * @return Emission color.
- */
-half4 calcLightingUnityDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal)
-{
-#if !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING) && defined(_LIGHTING_UNITY_LAMBERT)
-    return calcLightingUnityLambertDeferred(color, worldPos, worldNormal, atten, lmap, /* out */ diffuse, /* out */ specular, /* out */ normal);
-#elif !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING) && defined(_LIGHTING_UNITY_BLINN_PHONG)
-    return calcLightingUnityBlinnPhongDeferred(color, worldPos, worldNormal, atten, lmap, /* out */ diffuse, /* out */ specular, /* out */ normal);
-#elif !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING) && defined(_LIGHTING_UNITY_STANDARD)
-    return calcLightingUnityStandardDeferred(color, worldPos, worldNormal, atten, lmap, /* out */ diffuse, /* out */ specular, /* out */ normal);
-#elif !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING) && defined(_LIGHTING_UNITY_STANDARD_SPECULAR)
-    return calcLightingUnityStandardSpecularDeferred(color, worldPos, worldNormal, atten, lmap, /* out */ diffuse, /* out */ specular, /* out */ normal);
-#else  // Assume _LIGHTING_UNLIT
-    diffuse = half4(0.0, 0.0, 0.0, 1.0);
-    specular = half4(0.0, 0.0, 0.0, 0.0);
-    normal = half4(worldNormal * 0.5 + 0.5, 1.0);
-    return half4(color.rgb, 0.0);
 #endif  // defined(_LIGHTING_LAMBERT)
 }
 
@@ -221,21 +154,6 @@ half4 calcLightingUnityDeferred(half4 color, float3 worldPos, float3 worldNormal
 
 
 #if !defined(LIGHTINGUTILS_OMIT_OLD_LIGHTING)
-/*!
- * Calculate lighting with Lambert Reflection Model, same as Surface Shader with Lambert.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
- * @return Color with lighting applied.
- */
-half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap)
-{
-    return calcLightingUnityLambert(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal));
-}
-
-
 /*!
  * Calculate lighting with Lambert Reflection Model, same as Surface Shader with Lambert.
  * @param [in] color  Base color.
@@ -304,24 +222,6 @@ half4 calcLightingUnityLambert(half4 color, float3 worldPos, float3 worldNormal,
  * @param [in] worldNormal  Normal in world space.
  * @param [in] atten  Light attenuation.
  * @param [in] lmap  Light map parameters.
- * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
- * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
- * @param [out] normal  Encoded normal. (rgb: normal, a: unused)
- * @return Emission color.
- */
-half4 calcLightingUnityLambertDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal)
-{
-    return calcLightingUnityLambertDeferred(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal), /* out */ diffuse, /* out */ specular, /* out */ normal);
-}
-
-
-/*!
- * Calculate lighting with Lambert Reflection Model, same as Surface Shader with Lambert.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
  * @param [in] ambient  Ambient light.
  * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
  * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
@@ -354,21 +254,6 @@ half4 calcLightingUnityLambertDeferred(half4 color, float3 worldPos, float3 worl
 #endif  // !defined(UNITY_HDR_ON)
 
     return emission;
-}
-
-
-/*!
- * Calculate lighting with Blinn-Phong Reflection Model, same as Surface Shader with Lambert.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
- * @return Color with lighting applied.
- */
-half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap)
-{
-    return calcLightingUnityBlinnPhong(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal));
 }
 
 
@@ -442,24 +327,6 @@ half4 calcLightingUnityBlinnPhong(half4 color, float3 worldPos, float3 worldNorm
  * @param [in] worldNormal  Normal in world space.
  * @param [in] atten  Light attenuation.
  * @param [in] lmap  Light map parameters.
- * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
- * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
- * @param [out] normal  Encoded normal. (rgb: normal, a: unused)
- * @return Emission color.
- */
-half4 calcLightingUnityBlinnPhongDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal)
-{
-    return calcLightingUnityBlinnPhongDeferred(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal), /* out */ diffuse, /* out */ specular, /* out */ normal);
-}
-
-
-/*!
- * Calculate lighting with Blinn-Phong Reflection Model, same as Surface Shader with Lambert.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
  * @param [in] ambient  Ambient light.
  * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
  * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
@@ -497,21 +364,6 @@ half4 calcLightingUnityBlinnPhongDeferred(half4 color, float3 worldPos, float3 w
 
 
 #if !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING)
-/*!
- * Calculate lighting with Unity PBS, same as Surface Shader with UnityStandard.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
- * @return Color with lighting applied.
- */
-half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap)
-{
-    return calcLightingUnityStandard(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal));
-}
-
-
 /*!
  * Calculate lighting with Unity PBS, same as Surface Shader with UnityStandard.
  * @param [in] color  Base color.
@@ -584,24 +436,6 @@ half4 calcLightingUnityStandard(half4 color, float3 worldPos, float3 worldNormal
  * @param [in] worldNormal  Normal in world space.
  * @param [in] atten  Light attenuation.
  * @param [in] lmap  Light map parameters.
- * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
- * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
- * @param [out] normal  Encoded normal. (rgb: normal, a: unused)
- * @return Emission color.
- */
-half4 calcLightingUnityStandardDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal)
-{
-    return calcLightingUnityStandardDeferred(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal), /* out */ diffuse, /* out */ specular, /* out */ normal);
-}
-
-
-/*!
- * Calculate lighting with Unity PBS, same as Surface Shader with UnityStandard.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
  * @param [in] ambient  Ambient light.
  * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
  * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
@@ -635,21 +469,6 @@ half4 calcLightingUnityStandardDeferred(half4 color, float3 worldPos, float3 wor
 #endif  // !defined(UNITY_HDR_ON)
 
     return emission;
-}
-
-
-/*!
- * Calculate lighting with Unity PBS Specular, same as Surface Shader with UnityStandardSpecular.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
- * @return Color with lighting applied.
- */
-half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap)
-{
-    return calcLightingUnityStandardSpecular(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal));
 }
 
 
@@ -724,24 +543,6 @@ half4 calcLightingUnityStandardSpecular(half4 color, float3 worldPos, float3 wor
  * @param [in] worldNormal  Normal in world space.
  * @param [in] atten  Light attenuation.
  * @param [in] lmap  Light map parameters.
- * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
- * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
- * @param [out] normal  Encoded normal. (rgb: normal, a: unused)
- * @return Emission color.
- */
-half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, float3 worldNormal, half atten, float4 lmap, out half4 diffuse, out half4 specular, out half4 normal)
-{
-    return calcLightingUnityStandardSpecularDeferred(color, worldPos, worldNormal, atten, lmap, calcAmbient(worldPos, worldNormal), /* out */ diffuse, /* out */ specular, /* out */ normal);
-}
-
-
-/*!
- * Calculate lighting with Unity PBS Specular, same as Surface Shader with UnityStandardSpecular.
- * @param [in] color  Base color.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @param [in] atten  Light attenuation.
- * @param [in] lmap  Light map parameters.
  * @param [in] ambient  Ambient light.
  * @param [out] diffuse  Diffuse and occulusion. (rgb: diffuse, a: occlusion)
  * @param [out] specular  Specular and smoothness. (rgb: specular, a: smoothness)
@@ -777,38 +578,6 @@ half4 calcLightingUnityStandardSpecularDeferred(half4 color, float3 worldPos, fl
     return emission;
 }
 #endif  // !defined(LIGHTINGUTILS_OMIT_PBS_LIGHTING)
-
-
-/*!
- * @brief Calculate ambient light.
- * @param [in] worldPos  World coordinate.
- * @param [in] worldNormal  Normal in world space.
- * @return Ambient light.
- */
-half3 calcAmbient(float3 worldPos, float3 worldNormal)
-{
-#if !defined(LIGHTMAP_ON) && UNITY_SHOULD_SAMPLE_SH && !UNITY_SAMPLE_FULL_SH_PER_PIXEL
-    // Approximated illumination from non-important point lights
-#    if defined(VERTEXLIGHT_ON)
-    const half3 ambient = Shade4PointLights(
-        unity_4LightPosX0,
-        unity_4LightPosY0,
-        unity_4LightPosZ0,
-        unity_LightColor[0].rgb,
-        unity_LightColor[1].rgb,
-        unity_LightColor[2].rgb,
-        unity_LightColor[3].rgb,
-        unity_4LightAtten0,
-        worldPos,
-        worldNormal);
-#    else
-    const half3 ambient = half3(0.0, 0.0, 0.0);
-#    endif  // defined(VERTEXLIGHT_ON)
-    return ShadeSHPerVertex(worldNormal, ambient);
-#else
-    return half3(0.0, 0.0, 0.0);
-#endif  // !defined(LIGHTMAP_ON) && UNITY_SHOULD_SAMPLE_SH && !UNITY_SAMPLE_FULL_SH_PER_PIXEL
-}
 
 
 /*!
